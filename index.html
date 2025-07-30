@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infografis: Tantangan Etika Media Sosial di Aceh</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* [IMPROVEMENT] Added animated particle background */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #003F5C;
+            color: #FFFFFF;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+        }
+
+        #particle-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(-45deg, #003F5C, #374C80, #7A5195, #003F5C);
+            background-size: 400% 400%;
+            animation: gradientBG 20s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .card {
+            background-color: rgba(10, 25, 47, 0.5); /* Darker, more sophisticated glass */
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 1.25rem;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+            transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease;
+            opacity: 0;
+            transform: translateY(40px);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* [IMPROVEMENT] Added decorative glow effect on cards */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(800px circle at var(--mouse-x) var(--mouse-y), rgba(255, 255, 255, 0.06), transparent 40%);
+            z-index: 0;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+        
+        .card > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .card.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* [IMPROVEMENT] Parallax effect on scroll */
+        .parallax-card {
+            transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.5s;
+        }
+
+        .stat-number {
+            font-weight: 900;
+            font-size: clamp(3.5rem, 12vw, 5rem);
+            line-height: 1;
+            color: #FFA600;
+            text-shadow: 3px 3px 8px rgba(0,0,0,0.4);
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin: auto;
+            height: 300px;
+        }
+        
+        /* [IMPROVEMENT] New visualization for the 'Benturan Nilai' section */
+        .comparison-box {
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            text-align: center;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .comparison-box:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-color: #FFA600;
+        }
+        .comparison-icon {
+            font-size: 3rem;
+            line-height: 1;
+        }
+        .comparison-arrow {
+            font-size: 3rem;
+            color: #FFA600;
+            align-self: center;
+            padding: 2rem 0;
+        }
+
+        .venn-circle {
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-weight: bold;
+            color: white;
+            padding: 1rem;
+            border: 2px solid rgba(255,255,255,0.5);
+            transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.5s;
+            opacity: 0;
+        }
+        
+        /* [IMPROVEMENT] Animation classes for Venn Diagram */
+        .venn-circle.animate-in {
+            opacity: 1;
+            transform: scale(1) !important;
+        }
+        
+        .custom-table {
+            background-color: rgba(0,0,0,0.2);
+            border-radius: 0.75rem;
+            overflow: hidden;
+        }
+        .custom-table th {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+        .custom-table tr {
+            transition: background-color 0.2s ease-in-out;
+        }
+        .custom-table tr:not(:last-child) {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .custom-table tr:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        .custom-table td, .custom-table th {
+            padding: 0.75rem 1rem;
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <div id="particle-container"></div>
+    <div class="container mx-auto p-4 md:p-8 relative z-10">
+
+        <header class="text-center mb-20 min-h-[20vh] flex flex-col justify-center">
+            <h1 class="text-4xl md:text-6xl font-black text-white uppercase tracking-wider">Paradoks Digital</h1>
+            <p class="text-xl md:text-2xl text-amber-400 mt-2">Menavigasi Etika & Moral di Linimasa Aceh</p>
+        </header>
+
+        <main class="space-y-16">
+
+            <section id="lanskap-digital" class="card parallax-card">
+                <h2 class="text-3xl font-bold text-center mb-8 text-amber-400">Lanskap Digital: Aceh dalam Genggaman Angka</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+                    <div class="text-center">
+                        <p class="stat-number" data-target="167">0</p>
+                        <p class="mt-2 text-lg">Juta Pengguna Medsos Aktif di Indonesia (2024)</p>
+                    </div>
+                    <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="chart-container h-64 md:h-80">
+                             <p class="text-center font-semibold mb-2">64.3% Populasi Terhubung</p>
+                            <canvas id="penetrasiChart"></canvas>
+                        </div>
+                        <div class="chart-container h-64 md:h-80">
+                            <p class="text-center font-semibold mb-2">Platform Terpopuler</p>
+                            <canvas id="platformChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <p class="text-center mt-8 text-sm opacity-80">Data menunjukkan penetrasi media sosial yang masif, menciptakan ruang publik baru dengan tantangan etis yang belum pernah ada sebelumnya.</p>
+            </section>
+            
+            <section id="benturan-nilai" class="card parallax-card">
+                <h2 class="text-3xl font-bold text-center mb-8 text-amber-400">Benturan Nilai: Dari Warung Kopi ke Linimasa</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+                    <div>
+                        <h3 class="font-bold text-xl text-center mb-4">Pergeseran Ruang Diskusi Publik</h3>
+                        <div class="flex flex-col">
+                            <div class="comparison-box">
+                                <div class="comparison-icon">☕</div>
+                                <p class="font-bold text-xl">WARUNG KOPI</p>
+                                <p class="text-sm opacity-80">Interaksi Fisik, Terkontrol Norma Adat & Adab, Menghargai Hierarki</p>
+                            </div>
+                            <div class="comparison-arrow">⬇️</div>
+                            <div class="comparison-box border-red-500/50">
+                                <div class="comparison-icon">📱</div>
+                                <p class="font-bold text-xl">MEDIA SOSIAL</p>
+                                <p class="text-sm opacity-80">Interaksi Digital, Global, Anonim, Instan, Etika Tradisional Tergerus</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-xl text-center mb-4">Matriks Perilaku Digital di Aceh</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm text-left custom-table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Perilaku</th>
+                                        <th scope="col" class="text-center">Adat</th>
+                                        <th scope="col" class="text-center">Syariat</th>
+                                        <th scope="col" class="text-center">UU ITE</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="font-medium">Bahasa Kasar ('Teumeunak')</td>
+                                        <td class="text-center text-2xl">❌</td>
+                                        <td class="text-center text-2xl">❌</td>
+                                        <td class="text-center text-2xl">⚠️</td>
+                                    </tr>
+                                    <tr><td class="font-medium">Sebar Hoax</td><td class="text-center text-2xl">❌</td><td class="text-center text-2xl">❌</td><td class="text-center text-2xl">❌</td></tr>
+                                    <tr><td class="font-medium">Menampakkan Aurat</td><td class="text-center text-2xl">❌</td><td class="text-center text-2xl">❌</td><td class="text-center text-2xl">➖</td></tr>
+                                    <tr><td class="font-medium">Ikhtilat (Interaksi Bebas)</td><td class="text-center text-2xl">❌</td><td class="text-center text-2xl">❌</td><td class="text-center text-2xl">➖</td></tr>
+                                </tbody>
+                            </table>
+                            <p class="text-xs mt-2 opacity-70 text-center">❌: Melanggar, ⚠️: Potensi Pelanggaran, ➖: Tidak Diatur Spesifik</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="dampak-nyata" class="card parallax-card">
+                <h2 class="text-3xl font-bold text-center mb-8 text-amber-400">Dampak Nyata: Sisi Gelap Konektivitas</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    <div class="text-center">
+                        <div class="flex items-baseline justify-center">
+                           <p class="stat-number" data-target="81">0</p><p class="text-5xl font-bold text-amber-400">%</p>
+                        </div>
+                        <p class="mt-2 text-lg">Remaja di Banda Aceh Teridentifikasi Kecanduan Medsos (Level Sedang & Tinggi)</p>
+                        <p class="text-sm mt-4 opacity-80">Kecanduan ini berkorelasi signifikan dengan gangguan kesehatan mental dan emosional.</p>
+                    </div>
+                     <div class="chart-container h-80">
+                        <p class="text-center font-semibold mb-2">Tingkat Kecanduan Medsos Remaja</p>
+                        <canvas id="kecanduanChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section id="respons-institusional" class="card parallax-card">
+                <h2 class="text-3xl font-bold text-center mb-8 text-amber-400">Respons Institusional: Tiga Garda Penegakan Norma</h2>
+                <p class="text-center max-w-3xl mx-auto mb-10">Regulasi etika digital di Aceh berjalan dalam tiga ranah berbeda yang seringkali tidak sinkron, menciptakan kebingungan dan tantangan penegakan.</p>
+                <div class="relative flex flex-col md:flex-row justify-center items-center gap-4 md:-space-x-16">
+                     <div id="venn1" class="venn-circle w-48 h-48 md:w-64 md:h-64 bg-blue-600/70 z-10 transform scale-0"><span><strong class="block text-lg">MPU ACEH</strong>Fatwa & Moral</span></div>
+                     <div id="venn2" class="venn-circle w-48 h-48 md:w-64 md:h-64 bg-red-600/70 z-20 md:-translate-y-8 transform scale-0"><span><strong class="block text-lg">POLDA (UU ITE)</strong>Hukum Positif</span></div>
+                     <div id="venn3" class="venn-circle w-48 h-48 md:w-64 md:h-64 bg-yellow-600/70 z-10 transform scale-0"><span><strong class="block text-lg">MASYARAKAT</strong>Norma Sosial</span></div>
+                </div>
+                 <p class="text-center mt-8 text-sm opacity-80">Sebuah perilaku bisa dianggap <strong class="text-yellow-400">haram</strong>, namun belum tentu <strong class="text-red-400">ilegal</strong>, yang memicu <strong class="text-blue-400">main hakim sendiri</strong>.</p>
+            </section>
+
+            <section id="jalan-kedepan" class="card parallax-card">
+                <h2 class="text-3xl font-bold text-center mb-8 text-amber-400">Jalan ke Depan: Menuju Aceh Beretika Digital</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <div>
+                        <h3 class="font-bold text-xl text-center mb-4">Tanggung Jawab Individu</h3>
+                         <div class="comparison-box bg-green-500/20 border-green-400">
+                            <p class="font-bold text-xl">POSTING</p>
+                        </div>
+                        <div class="comparison-arrow">⬆️</div>
+                        <div class="comparison-box">
+                            <p class="font-bold text-xl">SARING</p>
+                            <p class="text-sm">Verifikasi? Bermanfaat? Menyakiti? Sesuai Adab?</p>
+                        </div>
+                        <div class="comparison-arrow">⬆️</div>
+                        <div class="comparison-box">
+                            <p class="font-bold text-xl">PIKIRKAN</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-xl text-center mb-4">Sinergi Multi-Pemangku Kepentingan</h3>
+                        <ul class="space-y-4">
+                            <li class="flex items-start p-3 rounded-lg transition-colors hover:bg-white/10"><span class="text-amber-400 mr-4 mt-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg></span> <span><strong>Pemerintah:</strong> Tingkatkan literasi digital kontekstual dan kolaborasi dengan platform.</span></li>
+                            <li class="flex items-start p-3 rounded-lg transition-colors hover:bg-white/10"><span class="text-amber-400 mr-4 mt-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 1.522C12 1.522 13.5 4.5 13.5 6.75C13.5 9 12 11.25 12 11.25C12 11.25 10.5 9 10.5 6.75C10.5 4.5 12 1.522 12 1.522Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M12 11.25V14.25" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M10.5 17.25L12 14.25L13.5 17.25" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M7.5 19.5L12 22.5L16.5 19.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></span> <span><strong>Ulama & MPU:</strong> Modernisasi dakwah ke platform digital, buat panduan konten positif.</span></li>
+                            <li class="flex items-start p-3 rounded-lg transition-colors hover:bg-white/10"><span class="text-amber-400 mr-4 mt-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg></span> <span><strong>Pendidikan:</strong> Wajibkan kurikulum etika digital, pimpin riset berbasis bukti.</span></li>
+                            <li class="flex items-start p-3 rounded-lg transition-colors hover:bg-white/10"><span class="text-amber-400 mr-4 mt-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.653-.125-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.653.125-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg></span> <span><strong>Keluarga & Komunitas:</strong> Bekali diri dengan pengetahuan digital, jembatani kesenjangan generasi.</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <footer class="text-center mt-20 text-sm opacity-70">
+            <p>Infografis Edukasi untuk Mata Kuliah Etika Profesi Teknologi Informasi.</p>
+            <p>Dirancang berdasarkan analisis komprehensif tentang tantangan perkembangan media sosial terhadap etika dan moral di Aceh.</p>
+        </footer>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- [IMPROVEMENT] Particle.js for background animation ---
+            const particleContainer = document.getElementById('particle-container');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.style.position = 'absolute';
+                particle.style.width = `${Math.random() * 3 + 1}px`;
+                particle.style.height = particle.style.width;
+                particle.style.borderRadius = '50%';
+                particle.style.backgroundColor = 'rgba(255, 255, 255, 0.5)';
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100}%`;
+                const duration = Math.random() * 10 + 10;
+                particle.style.animation = `float ${duration}s ease-in-out infinite`;
+                particleContainer.appendChild(particle);
+            }
+            const style = document.createElement('style');
+            style.innerHTML = `
+                @keyframes float {
+                    0% { transform: translate(0, 0); }
+                    50% { transform: translate(${Math.random() * 100 - 50}px, ${Math.random() * 100 - 50}px); opacity: 0.8; }
+                    100% { transform: translate(0, 0); }
+                }
+            `;
+            document.head.appendChild(style);
+
+            // --- [IMPROVEMENT] Mouse move glow effect on cards ---
+            const cardsForGlow = document.querySelectorAll('.card');
+            cardsForGlow.forEach(card => {
+                card.addEventListener('mousemove', e => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    card.style.setProperty('--mouse-x', `${x}px`);
+                    card.style.setProperty('--mouse-y', `${y}px`);
+                });
+            });
+
+            // --- [IMPROVEMENT] Parallax effect on scroll ---
+            const parallaxCards = document.querySelectorAll('.parallax-card');
+            window.addEventListener('scroll', () => {
+                const scrollY = window.scrollY;
+                parallaxCards.forEach(card => {
+                    const speed = -0.1;
+                    const yPos = scrollY * speed;
+                    // We combine this with the entry animation transform
+                    if (card.classList.contains('is-visible')) {
+                         card.style.transform = `translateY(${yPos}px)`;
+                    }
+                });
+            });
+
+            // --- Intersection Observer for animations ---
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        // Animate cards
+                        entry.target.classList.add('is-visible');
+                        
+                        // [IMPROVEMENT] Trigger counter animation
+                        const counter = entry.target.querySelector('.stat-number');
+                        if (counter && !counter.classList.contains('is-counting')) {
+                            animateCounter(counter);
+                        }
+
+                        // [IMPROVEMENT] Trigger Venn diagram animation
+                        if (entry.target.id.startsWith('venn')) {
+                            const delay = parseInt(entry.target.id.replace('venn', '')) * 200; // 200ms, 400ms, 600ms
+                            setTimeout(() => {
+                                entry.target.classList.add('animate-in');
+                            }, delay);
+                        }
+
+                        // Initialize charts when they are visible
+                        if (entry.target.tagName === 'CANVAS' && !entry.target.chart) {
+                            initializeChart(entry.target);
+                        }
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.card, canvas, .venn-circle').forEach(el => observer.observe(el));
+            
+            // [IMPROVEMENT] Counter animation function
+            function animateCounter(element) {
+                element.classList.add('is-counting');
+                const target = +element.getAttribute('data-target');
+                const duration = 1500; // ms
+                const stepTime = Math.abs(Math.floor(duration / target));
+                let current = 0;
+                const timer = setInterval(() => {
+                    current += 1;
+                    element.innerText = current;
+                    if (current === target) {
+                        clearInterval(timer);
+                    }
+                }, stepTime);
+            }
+
+            // --- Chart Data and Configuration ---
+            const chartInstances = {};
+            function initializeChart(canvas) {
+                 const chartConfig = {
+                    penetrasiChart: { type: 'doughnut', data: penetrasiData, options: { responsive: true, maintainAspectRatio: false, ...chartTooltipConfig } },
+                    platformChart: { type: 'bar', data: platformData, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, ...chartTooltipConfig } },
+                    kecanduanChart: { type: 'pie', data: kecanduanData, options: { responsive: true, maintainAspectRatio: false, ...chartTooltipConfig } }
+                };
+                const config = chartConfig[canvas.id];
+                if(config) {
+                    canvas.chart = new Chart(canvas, config);
+                }
+            }
+            
+            const brilliantBlues = { darkBlue: '#003F5C', purple: '#7A5195', pink: '#EF5675', orange: '#FF764A', yellow: '#FFA600' };
+            const chartTooltipConfig = {
+                plugins: {
+                    tooltip: { backgroundColor: 'rgba(0, 0, 0, 0.7)', titleFont: { size: 14, weight: 'bold' }, bodyFont: { size: 12 }, padding: 10, cornerRadius: 8 },
+                    legend: { labels: { color: '#FFFFFF', font: { size: 12 } } }
+                },
+                scales: {
+                    x: { ticks: { color: '#FFFFFF' }, grid: { color: 'rgba(255, 255, 255, 0.1)' } },
+                    y: { ticks: { color: '#FFFFFF' }, grid: { display: false } }
+                },
+                animation: {
+                    duration: 1000,
+                    easing: 'easeInOutCubic'
+                }
+            };
+            
+            const penetrasiData = { labels: ['Pengguna Medsos', 'Belum Menggunakan'], datasets: [{ label: 'Populasi', data: [64.3, 35.7], backgroundColor: [brilliantBlues.pink, 'rgba(255, 255, 255, 0.2)'], borderColor: brilliantBlues.darkBlue, borderWidth: 2 }] };
+            const platformData = { labels: ['YouTube', 'Instagram', 'Facebook', 'TikTok', 'WhatsApp'], datasets: [{ label: 'Juta Pengguna', data: [139, 122, 118, 89, 116], backgroundColor: [brilliantBlues.purple, brilliantBlues.pink, brilliantBlues.orange, brilliantBlues.yellow, '#58508d'], borderWidth: 0, borderRadius: 4 }] };
+            const kecanduanData = { labels: ['Kecanduan Tinggi', 'Kecanduan Sedang', 'Tidak Kecanduan'], datasets: [{ label: 'Persentase Remaja', data: [20, 61, 19], backgroundColor: [brilliantBlues.pink, brilliantBlues.orange, 'rgba(255, 255, 255, 0.2)'], borderColor: brilliantBlues.darkBlue, borderWidth: 2 }] };
+        });
+    </script>
+</body>
+</html>
